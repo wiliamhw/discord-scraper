@@ -14,25 +14,26 @@ type ServerConfig struct {
 
 type UserInput struct {
 	ChannelId  string
-	NumOfChats string
+	NumOfChats int
+	APIToken   string
 }
 
 var (
 	Config ServerConfig
-	Input  UserInput
+	Input  *UserInput
 )
 
-func init() {
+func InitConfig() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 
 	viper.SetDefault("server.bufferedJobs", 500)
 	viper.SetDefault("server.workers", 10)
-	viper.SetDefault("server.logFile", "./main.log")
+	viper.SetDefault("server.logFile", "main.log")
 
 	// Load config to viper
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatal("Error while reading config file", err)
+		log.Fatal("Error while reading config file: ", err)
 	}
 
 	// Store server config
@@ -43,8 +44,11 @@ func init() {
 	}
 
 	// Store user input
-	err := viper.UnmarshalKey("input", Input)
+	err := viper.UnmarshalKey("input", &Input)
 	if err != nil {
-		log.Fatal("Unable to convvert user input into struct:", err)
+		log.Fatal("Unable to convert user input into struct:", err)
+	}
+	if len(Input.APIToken) == 0 {
+		log.Fatal("Empty API token")
 	}
 }

@@ -6,3 +6,4 @@ server:
 input:
   channelId: 
   numOfChats: 
+  apiToken:

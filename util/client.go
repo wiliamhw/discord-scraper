@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +15,7 @@ var (
 	LogFilePtr *os.File
 	fileLogger *log.Logger
 	transport  *http.Transport
+	header     http.Header
 )
 
 type HTTPClient struct {
@@ -25,7 +27,7 @@ type HTTPError struct {
 	Status     string
 }
 
-func init() {
+func InitClient() {
 	// Create HTTP tranport
 	transport = &http.Transport{
 		Dial: (&net.Dialer{
@@ -33,6 +35,11 @@ func init() {
 			KeepAlive: 15 * time.Second,
 		}).Dial,
 		TLSHandshakeTimeout: 30 * time.Second,
+	}
+
+	// List required header
+	header = http.Header{
+		"Authorization": {"Mzc3MTIzMzk5OTcxMTEwOTEz.GlX-Jv.LIP8_wJ3q_kAxboGyhURMSRHI8Dxt8d-VZFgCM"},
 	}
 
 	// Create logfile
@@ -44,9 +51,22 @@ func init() {
 	fileLogger = log.New(w, "", log.LstdFlags)
 }
 
+func NewHTTPClient() *HTTPClient {
+	return &HTTPClient{
+		driver: &http.Client{
+			Transport: transport,
+		},
+	}
+}
+
 func (client *HTTPClient) GetResponse(url string) (*http.Response, error) {
 	// Get current page
-	resp, err := client.driver.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header = header
+	resp, err := client.driver.Do(req)
 
 	// Handle status code error
 	if resp != nil && resp.StatusCode != 200 {
@@ -58,12 +78,14 @@ func (client *HTTPClient) GetResponse(url string) (*http.Response, error) {
 	return resp, err
 }
 
-func NewHTTPClient() *HTTPClient {
-	return &HTTPClient{
-		driver: &http.Client{
-			Transport: transport,
-		},
+func (client *HTTPClient) GetJson(url string, target interface{}) error {
+	// Get current page
+	resp, err := client.GetResponse(url)
+	if err != nil {
+		return err
 	}
+	defer resp.Body.Close()
+	return json.NewDecoder(resp.Body).Decode(target)
 }
 
 func (client *HTTPClient) DownloadFile(url string, filepath string) {
