@@ -26,7 +26,7 @@ func init() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 
-	viper.SetDefault("server.bufferedJobs", 100)
+	viper.SetDefault("server.bufferedJobs", 500)
 	viper.SetDefault("server.workers", 10)
 	viper.SetDefault("server.logFile", "./main.log")
 

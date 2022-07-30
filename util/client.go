@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	Transport  *http.Transport
 	LogFilePtr *os.File
 	fileLogger *log.Logger
+	transport  *http.Transport
 )
 
 type HTTPClient struct {
@@ -27,7 +27,7 @@ type HTTPError struct {
 
 func init() {
 	// Create HTTP tranport
-	Transport = &http.Transport{
+	transport = &http.Transport{
 		Dial: (&net.Dialer{
 			Timeout:   30 * time.Second,
 			KeepAlive: 15 * time.Second,
@@ -56,6 +56,14 @@ func (client *HTTPClient) GetResponse(url string) (*http.Response, error) {
 		}
 	}
 	return resp, err
+}
+
+func NewHTTPClient() *HTTPClient {
+	return &HTTPClient{
+		driver: &http.Client{
+			Transport: transport,
+		},
+	}
 }
 
 func (client *HTTPClient) DownloadFile(url string, filepath string) {

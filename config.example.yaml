@@ -1,5 +1,5 @@
 server:
-  bufferedJobs: 100
+  bufferedJobs: 500
   workers: 10
   logFile: main.log
 
