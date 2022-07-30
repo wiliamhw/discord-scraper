@@ -1,0 +1,8 @@
+server:
+  bufferedJobs: 100
+  workers: 10
+  logFile: main.log
+
+input:
+  channelId: 
+  numOfChats: 
