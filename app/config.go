@@ -13,9 +13,9 @@ type ServerConfig struct {
 }
 
 type UserInput struct {
-	ChannelId  string
-	NumOfChats int
-	APIToken   string
+	ChannelId  string `mapstructure:"channel_id"`
+	NumOfChats int    `mapstructure:"num_of_chats"`
+	APIToken   string `mapstructure:"api_token"`
 }
 
 var (
@@ -27,9 +27,9 @@ func InitConfig() {
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
 
-	viper.SetDefault("server.bufferedJobs", 500)
+	viper.SetDefault("server.buffered_jobs", 500)
 	viper.SetDefault("server.workers", 10)
-	viper.SetDefault("server.logFile", "main.log")
+	viper.SetDefault("server.log_file", "main.log")
 
 	// Load config to viper
 	if err := viper.ReadInConfig(); err != nil {
@@ -39,8 +39,8 @@ func InitConfig() {
 	// Store server config
 	Config = ServerConfig{
 		NumOfWorkers: viper.GetInt("server.workers"),
-		JobsBuffer:   viper.GetInt("server.bufferedJobs"),
-		LogFile:      viper.GetString("server.logFile"),
+		JobsBuffer:   viper.GetInt("server.buffered_jobs"),
+		LogFile:      viper.GetString("server.log_file"),
 	}
 
 	// Store user input

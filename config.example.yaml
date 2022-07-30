@@ -1,9 +1,9 @@
 server:
-  bufferedJobs: 500
+  buffered_jobs: 500
   workers: 10
-  logFile: main.log
+  log_file: main.log
 
 input:
-  channelId: 
-  numOfChats: 
-  apiToken:
+  channel_id: 
+  num_of_chats: 
+  api_token:
