@@ -95,7 +95,7 @@ func (client *HTTPClient) DownloadFile(url string, filepath string) {
 	// Get HTTP response
 	resp, err := client.GetResponse(url)
 	if err != nil {
-		fileLogger.Println(err)
+		logToFile(err, filepath, url)
 		return
 	}
 	defer resp.Body.Close()
@@ -103,7 +103,7 @@ func (client *HTTPClient) DownloadFile(url string, filepath string) {
 	// Create the file
 	out, err := os.Create(filepath)
 	if err != nil {
-		fileLogger.Println(err)
+		logToFile(err, filepath, url)
 		return
 	}
 	defer out.Close()
@@ -111,7 +111,7 @@ func (client *HTTPClient) DownloadFile(url string, filepath string) {
 	// Write the body to file
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		fileLogger.Println(err)
+		logToFile(err, filepath, url)
 		return
 	}
 
@@ -119,5 +119,10 @@ func (client *HTTPClient) DownloadFile(url string, filepath string) {
 }
 
 func (e *HTTPError) Error() string {
-	return fmt.Sprintf("Status code error: %d %s", e.StatusCode, e.Status)
+	return fmt.Sprintf("Error: %s", e.Status)
+}
+
+func logToFile(err error, filepath string, url string) {
+	msg := fmt.Sprintf("%v - %s - %s", err, filepath, url)
+	fileLogger.Println(msg)
 }

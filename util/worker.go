@@ -6,19 +6,20 @@ import (
 )
 
 var (
-	JobsQueue chan downloadJob
+	JobsQueue chan DownloadJob
 	WG        = sync.WaitGroup{}
 	clients   []*HTTPClient
 )
 
-type downloadJob struct {
-	URL          string
-	destFullPath string
+type DownloadJob struct {
+	Number int
+	URL    string
+	Path   string
 }
 
-func init() {
+func InitWorker() {
 	clients = make([]*HTTPClient, Config.NumOfWorkers)
-	JobsQueue = make(chan downloadJob, Config.JobsBuffer)
+	JobsQueue = make(chan DownloadJob, Config.JobsBuffer)
 
 	for i := 0; i < Config.NumOfWorkers; i++ {
 		client := NewHTTPClient()
@@ -27,11 +28,15 @@ func init() {
 	}
 }
 
-func worker(id int, client *HTTPClient, jobs <-chan downloadJob) {
+func worker(id int, client *HTTPClient, jobs <-chan DownloadJob) {
 	for j := range jobs {
-		fmt.Printf("Worker %02d - Downloading %s\n", id, j.destFullPath)
-		client.DownloadFile(j.URL, j.destFullPath)
+		fmt.Printf("Worker %02d - %03d - Downloading %s\n",
+			id, j.Number, j.Path,
+		)
+		client.DownloadFile(j.URL, j.Path)
 		WG.Done()
-		fmt.Printf("Worker %02d - Download to %s is finished\n", id, j.destFullPath)
+		fmt.Printf("Worker %02d - %03d - Download to %s is finished\n",
+			id, j.Number, j.Path,
+		)
 	}
 }
