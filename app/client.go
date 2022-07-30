@@ -39,7 +39,7 @@ func InitClient() {
 
 	// List required header
 	header = http.Header{
-		"Authorization": {"Mzc3MTIzMzk5OTcxMTEwOTEz.GlX-Jv.LIP8_wJ3q_kAxboGyhURMSRHI8Dxt8d-VZFgCM"},
+		"Authorization": {Input.APIToken},
 	}
 
 	// Create logfile
