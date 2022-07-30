@@ -72,5 +72,6 @@ func main() {
 
 	close(util.JobsQueue)
 	util.WG.Wait()
+	util.PruneEmptyDirectories(storagePath)
 	fmt.Printf("\nTook: %f secs\n", time.Since(start).Seconds())
 }
