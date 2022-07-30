@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang-module/carbon"
+	"github.com/wiliamhw/discord-scraper/app"
 	"github.com/wiliamhw/discord-scraper/util"
 )
 
@@ -28,16 +29,16 @@ type Chat struct {
 
 func main() {
 	start := time.Now()
-	util.InitConfig()
-	fmt.Printf("Downloading Discord channel: %s\n", util.Input.ChannelId)
-	util.InitClient()
-	util.InitWorker()
-	defer util.LogFilePtr.Close()
+	app.InitConfig()
+	fmt.Printf("Downloading Discord channel: %s\n", app.Input.ChannelId)
+	app.InitClient()
+	app.InitWorker()
+	defer app.LogFilePtr.Close()
 
 	// Get all chats in a channel
-	client := util.NewHTTPClient()
+	client := app.NewHTTPClient()
 	url := fmt.Sprintf("%s/channels/%s/messages?limit=%d",
-		baseURL, util.Input.ChannelId, util.Input.NumOfChats,
+		baseURL, app.Input.ChannelId, app.Input.NumOfChats,
 	)
 	var chats []Chat
 	err := client.GetJson(url, &chats)
@@ -61,8 +62,8 @@ func main() {
 		// Download file
 		for _, attachment := range chat.Attachments {
 			filePath := fmt.Sprintf("%s/%s", dirPath, attachment.Filename)
-			util.WG.Add(1)
-			util.JobsQueue <- util.DownloadJob{
+			app.WG.Add(1)
+			app.JobsQueue <- app.DownloadJob{
 				Number: index,
 				URL:    attachment.URL,
 				Path:   filePath,
@@ -70,8 +71,8 @@ func main() {
 		}
 	}
 
-	close(util.JobsQueue)
-	util.WG.Wait()
+	close(app.JobsQueue)
+	app.WG.Wait()
 	util.PruneEmptyDirectories(storagePath)
 	fmt.Printf("\nTook: %f secs\n", time.Since(start).Seconds())
 }
