@@ -1,6 +1,4 @@
-package model
-
-import "github.com/wiliamhw/discord-scraper/app"
+package app
 
 type Chat struct {
 	ID          string       `json:"id"`
@@ -16,8 +14,8 @@ type Attachment struct {
 }
 
 func (a *Attachment) Download(number int, filePath string) {
-	app.WG.Add(1)
-	app.JobsQueue <- app.DownloadJob{
+	WG.Add(1)
+	JobsQueue <- DownloadJob{
 		Number: number,
 		URL:    a.URL,
 		Path:   filePath,
