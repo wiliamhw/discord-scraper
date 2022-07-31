@@ -19,7 +19,8 @@ var (
 )
 
 type HTTPClient struct {
-	driver *http.Client
+	driver     *http.Client
+	WithHeader bool
 }
 
 type HTTPError struct {
@@ -58,6 +59,7 @@ func NewHTTPClient() *HTTPClient {
 		driver: &http.Client{
 			Transport: transport,
 		},
+		WithHeader: false,
 	}
 }
 
@@ -67,7 +69,9 @@ func (client *HTTPClient) GetResponse(url string) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	req.Header = header
+	if client.WithHeader {
+		req.Header = header
+	}
 	resp, err := client.driver.Do(req)
 
 	// Handle status code error

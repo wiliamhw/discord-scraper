@@ -34,6 +34,7 @@ func (a *Attachment) Download(number int, filePath string) {
 
 func GetChatsFromAPI(baseURL string) (*[]Chat, error) {
 	client := NewHTTPClient()
+	client.WithHeader = true
 	url := fmt.Sprintf("%s/channels/%s/messages?limit=%d",
 		baseURL, Input.ChannelId, Input.NumOfChats,
 	)
