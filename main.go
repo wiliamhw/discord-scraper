@@ -4,28 +4,17 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/golang-module/carbon"
 	"github.com/wiliamhw/discord-scraper/app"
+	"github.com/wiliamhw/discord-scraper/model"
 	"github.com/wiliamhw/discord-scraper/util"
 )
 
 const baseURL = "https://discord.com/api/v9"
 const storagePath = "storage"
-
-type Attachment struct {
-	ID       string `json:"id"`
-	Filename string `json:"filename"`
-	URL      string `json:"url"`
-}
-
-type Chat struct {
-	ID          string       `json:"id"`
-	Content     string       `json:"content"`
-	Attachments []Attachment `json:"attachments"`
-	Timestamp   string       `json:"timestamp"`
-}
 
 func main() {
 	start := time.Now()
@@ -40,7 +29,7 @@ func main() {
 	url := fmt.Sprintf("%s/channels/%s/messages?limit=%d",
 		baseURL, app.Input.ChannelId, app.Input.NumOfChats,
 	)
-	var chats []Chat
+	var chats []model.Chat
 	err := client.GetJson(url, &chats)
 	if err != nil {
 		log.Fatal(err)
@@ -51,9 +40,18 @@ func main() {
 		if len(chat.Attachments) == 0 {
 			continue
 		}
-
-		// Create folder
 		timestamp := carbon.Parse(chat.Timestamp).Format("Y-m-d_H-i-s")
+
+		// Donwload as a file if only 1 attachment exists
+		if len(chat.Attachments) == 1 {
+			attachment := chat.Attachments[0]
+			ext := filepath.Ext(attachment.URL)
+			filePath := fmt.Sprintf("%s/%s%s", storagePath, timestamp, ext)
+			attachment.Download(index, filePath)
+			continue
+		}
+
+		// Create folder to download >1 attachments in a folder
 		dirPath := fmt.Sprintf("%s/%s", storagePath, timestamp)
 		if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
 			log.Fatal(err)
@@ -62,12 +60,7 @@ func main() {
 		// Download file
 		for _, attachment := range chat.Attachments {
 			filePath := fmt.Sprintf("%s/%s", dirPath, attachment.Filename)
-			app.WG.Add(1)
-			app.JobsQueue <- app.DownloadJob{
-				Number: index,
-				URL:    attachment.URL,
-				Path:   filePath,
-			}
+			attachment.Download(index, filePath)
 		}
 	}
 
