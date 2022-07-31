@@ -14,6 +14,7 @@ type ServerConfig struct {
 
 type UserInput struct {
 	UseJSON    bool   `mapstructure:"use_json"`
+	DirName    string `mapstructure:"dir_name"`
 	ChannelId  string `mapstructure:"channel_id"`
 	NumOfChats int    `mapstructure:"num_of_chats"`
 	APIToken   string `mapstructure:"api_token"`

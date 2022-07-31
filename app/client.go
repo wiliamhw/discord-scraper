@@ -38,8 +38,10 @@ func InitClient() {
 	}
 
 	// List required header
-	header = http.Header{
-		"Authorization": {Input.APIToken},
+	if !Input.UseJSON {
+		header = http.Header{
+			"Authorization": {Input.APIToken},
+		}
 	}
 
 	// Create logfile

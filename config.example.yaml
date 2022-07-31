@@ -5,6 +5,7 @@ server:
 
 input:
   use_json: false
+  dir_name: 'result1'
   channel_id: 
   num_of_chats: 
   api_token:

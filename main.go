@@ -3,11 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/golang-module/carbon"
 	"github.com/wiliamhw/discord-scraper/app"
-	"github.com/wiliamhw/discord-scraper/scraper"
 	"github.com/wiliamhw/discord-scraper/util"
 )
 
@@ -24,17 +25,22 @@ func main() {
 	app.InitWorker()
 	defer app.LogFilePtr.Close()
 
-	// Get storage path
-	now := time.Now().Format("2006-01-02 15:04:05")
-	nowFormatted := carbon.Parse(now).Format("Y-m-d_H-i-s")
-	storagePath := fmt.Sprintf("%s/%s", basePath, nowFormatted)
+	// Catch Ctrl+C
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		close(app.JobsQueue)
+		os.Exit(1)
+	}()
 
 	// Scrape
-	functionName := scraper.RunJSON
+	storagePath := fmt.Sprintf("%s/%s", basePath, app.Input.DirName)
+	scraper := app.RunAPI
 	if app.Input.UseJSON {
-		functionName = scraper.RunAPI
+		scraper = app.RunJSON
 	}
-	err := functionName(baseURL, storagePath)
+	err := scraper(baseURL, storagePath)
 	if err != nil {
 		log.Fatal(err)
 	}
