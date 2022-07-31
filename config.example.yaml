@@ -4,6 +4,7 @@ server:
   log_file: main.log
 
 input:
+  use_json: false
   channel_id: 
   num_of_chats: 
   api_token:

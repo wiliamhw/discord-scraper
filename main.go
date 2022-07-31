@@ -13,8 +13,10 @@ import (
 	"github.com/wiliamhw/discord-scraper/util"
 )
 
-const baseURL = "https://discord.com/api/v9"
-const storagePath = "storage"
+const (
+	baseURL  = "https://discord.com/api/v9"
+	basePath = "storage/results"
+)
 
 func main() {
 	start := time.Now()
@@ -23,6 +25,11 @@ func main() {
 	app.InitClient()
 	app.InitWorker()
 	defer app.LogFilePtr.Close()
+
+	// Get storage path
+	now := time.Now().Format("2006-01-02 15:04:05")
+	nowFormatted := carbon.Parse(now).Format("Y-m-d_H-i-s")
+	storagePath := fmt.Sprintf("%s/%s", basePath, nowFormatted)
 
 	// Get all chats in a channel
 	client := app.NewHTTPClient()
