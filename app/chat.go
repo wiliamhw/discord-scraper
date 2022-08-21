@@ -33,15 +33,37 @@ func (a *Attachment) Download(number int, filePath string) {
 ////////////////////////////////
 
 func GetChatsFromAPI(baseURL string) (*[]Chat, error) {
+	var chats []Chat
+	totalChat := 0
+
 	client := NewHTTPClient()
 	client.WithHeader = true
-	url := fmt.Sprintf("%s/channels/%s/messages?limit=%d",
-		baseURL, Input.ChannelId, Input.NumOfChats,
-	)
-	var chats []Chat
-	if err := client.GetJson(url, &chats); err != nil {
-		return nil, err
+
+	for totalChat < Input.NumOfChats {
+		// Determine limit paramms
+		var currentChats []Chat
+		limit := 100
+		if Input.NumOfChats-totalChat < 100 {
+			limit = Input.NumOfChats - totalChat
+		}
+
+		// Determine URI to fetch
+		url := fmt.Sprintf("%s/channels/%s/messages?limit=%d",
+			baseURL, Input.ChannelId, limit,
+		)
+		lenChats := len(chats)
+		if lenChats > 0 {
+			url += "?before=" + chats[lenChats-1].ID
+		}
+
+		// Fetch API
+		if err := client.GetJson(url, &currentChats); err != nil {
+			return nil, err
+		}
+		chats = append(chats, currentChats...)
+		totalChat += limit
 	}
+
 	return &chats, nil
 }
 

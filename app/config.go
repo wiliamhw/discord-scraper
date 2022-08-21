@@ -44,7 +44,14 @@ func InitConfig() {
 		log.Fatal("Unable to convert user input into struct:", err)
 	}
 
-	if !Input.UseJSON && len(Input.APIToken) == 0 {
-		log.Fatal("Empty API token")
+	if !Input.UseJSON {
+		if len(Input.APIToken) == 0 {
+			log.Fatal("Empty API token")
+		}
+		if Input.NumOfChats == 0 {
+			Input.NumOfChats = 500
+		} else if Input.NumOfChats > 2000 {
+			Input.NumOfChats = 2000
+		}
 	}
 }

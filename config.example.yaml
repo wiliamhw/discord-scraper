@@ -1,12 +1,16 @@
 server:
-  buffered_jobs: 200
+  buffered_jobs: 500
   workers: 12
   log_file: main.log
 
 input:
-  use_json: true
+  use_json: false
   dir_name: 'result1'
-  num_of_chats: 15 # Max 100 when use_json equal to 'false'
+
+  # When use_json equal to 'false':
+  #   * Max 2000 num of chats
+  #   * Default num_of_chats: 500
+  num_of_chats: 150
 
   # Optional when use_json equal to 'true'
   channel_id: 
