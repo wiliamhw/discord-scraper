@@ -51,9 +51,8 @@ func GetChatsFromAPI(baseURL string) (*[]Chat, error) {
 		url := fmt.Sprintf("%s/channels/%s/messages?limit=%d",
 			baseURL, Input.ChannelId, limit,
 		)
-		lenChats := len(chats)
-		if lenChats > 0 {
-			url += "?before=" + chats[lenChats-1].ID
+		if totalChat > 0 {
+			url += "&before=" + chats[totalChat-1].ID
 		}
 
 		// Fetch API
