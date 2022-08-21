@@ -20,6 +20,9 @@ func parseChats(chats *[]Chat, storagePath string) error {
 			continue
 		}
 		timestamp := carbon.Parse(chat.Timestamp).Format("Y-m-d_H-i-s")
+		if timestamp == "" {
+			timestamp = carbon.Now().Format("Y-m-d_H-i-s")
+		}
 
 		// Download file
 		for idx, attachment := range chat.Attachments {
