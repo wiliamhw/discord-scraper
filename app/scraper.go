@@ -10,6 +10,8 @@ import (
 
 // Download every attachments in each chat
 func parseChats(chats *[]Chat, storagePath string) error {
+	fmt.Printf("Parsing %d chats\n", len(*chats))
+
 	// Download every attachments in each chat
 	for index, chat := range *chats {
 		if Input.NumOfChats > 0 && index >= Input.NumOfChats {
