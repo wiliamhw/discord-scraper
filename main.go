@@ -17,25 +17,40 @@ const (
 	basePath = "storage/results"
 )
 
+func exit(start time.Time, storagePath string, exitCode int) {
+	close(app.JobsQueue)
+	if exitCode == 0 {
+		app.WG.Wait()
+	}
+	util.PruneEmptyDirectories(storagePath)
+	fmt.Printf("\nTook: %f secs\n", time.Since(start).Seconds())
+	app.LogFilePtr.Close()
+	os.Exit(exitCode)
+}
+
 func main() {
 	start := time.Now()
 	app.InitConfig()
 	fmt.Printf("Downloading Discord channel: %s\n", app.Input.ChannelId)
 	app.InitClient()
 	app.InitWorker()
-	defer app.LogFilePtr.Close()
+
+	// Create folder
+	storagePath := fmt.Sprintf("%s/%s", basePath, app.Input.DirName)
+	dirPath := fmt.Sprintf("%s", storagePath)
+	if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
+		log.Fatal(err)
+	}
 
 	// Catch Ctrl+C
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-c
-		close(app.JobsQueue)
-		os.Exit(1)
+		exit(start, storagePath, 1)
 	}()
 
 	// Scrape
-	storagePath := fmt.Sprintf("%s/%s", basePath, app.Input.DirName)
 	scraper := app.RunAPI
 	if app.Input.UseJSON {
 		scraper = app.RunJSON
@@ -45,8 +60,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	close(app.JobsQueue)
-	app.WG.Wait()
-	util.PruneEmptyDirectories(storagePath)
-	fmt.Printf("\nTook: %f secs\n", time.Since(start).Seconds())
+	exit(start, storagePath, 0)
 }

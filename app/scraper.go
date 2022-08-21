@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 
 	"github.com/golang-module/carbon"
@@ -13,7 +12,7 @@ import (
 func parseChats(chats *[]Chat, storagePath string) error {
 	// Download every attachments in each chat
 	for index, chat := range *chats {
-		if index >= Input.NumOfChats {
+		if Input.NumOfChats > 0 && index >= Input.NumOfChats {
 			break
 		}
 
@@ -22,24 +21,13 @@ func parseChats(chats *[]Chat, storagePath string) error {
 		}
 		timestamp := carbon.Parse(chat.Timestamp).Format("Y-m-d_H-i-s")
 
-		// Donwload as a file if only 1 attachment exists
-		if len(chat.Attachments) == 1 {
-			attachment := chat.Attachments[0]
-			ext := filepath.Ext(attachment.URL)
-			filePath := fmt.Sprintf("%s/%s%s", storagePath, timestamp, ext)
-			attachment.Download(index, filePath)
-			continue
-		}
-
-		// Create folder to download >1 attachments in a folder
-		dirPath := fmt.Sprintf("%s/%s", storagePath, timestamp)
-		if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
-			return err
-		}
-
 		// Download file
-		for _, attachment := range chat.Attachments {
-			filePath := fmt.Sprintf("%s/%s", dirPath, attachment.Filename)
+		for idx, attachment := range chat.Attachments {
+			ext := filepath.Ext(attachment.URL)
+			filePath := fmt.Sprintf(
+				"%s/%s_%d%s",
+				storagePath, timestamp, idx+1, ext,
+			)
 			attachment.Download(index, filePath)
 		}
 	}
