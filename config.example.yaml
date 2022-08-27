@@ -12,6 +12,6 @@ input:
   #   * Default num_of_chats: 500
   num_of_chats: 150
 
-  # Optional when use_json equal to 'true'
+  # Is optional when use_json is equal to 'true'
   channel_id: 
   api_token: 

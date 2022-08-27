@@ -71,7 +71,9 @@ func RunJSON(baseURL string, storagePath string) error {
 			return err
 		}
 
-		return parseChats(chats, storagePath)
+		if err := parseChats(chats, storagePath); err != nil {
+			return err
+		}
 	}
 	return nil
 }
