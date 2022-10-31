@@ -1,5 +1,5 @@
 # Discord Scraper
-Download all media from all chats in a channel using queue design pattern.
+Download all media from all chats in a channel using queue and multiple worker threads.
 
 To use:
 1. Copy `config.example.yaml` to `config.yaml`.  
